@@ -1,0 +1,47 @@
+{
+  "name": "pizza_box",
+  "version": "1.0.0",
+  "description": "Beginner-friendly IOTA dApp starter template",
+  "private": false,
+  "main": "app/integration.tsx",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "keywords": [
+    "iota",
+    "dapp",
+    "blockchain",
+    "nextjs",
+    "react",
+    "web3"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@iota/dapp-kit": "^0.7.0",
+    "@iota/iota-sdk": "^1.7.1",
+    "@radix-ui/themes": "^3.2.1",
+    "@tanstack/react-query": "^5.90.10",
+    "next": "16.0.3",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "react-spinners": "^0.14.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  }
+}

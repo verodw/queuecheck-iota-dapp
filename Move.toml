@@ -1,0 +1,9 @@
+[package]
+name = "iota_dapp"
+edition = "2024.beta"
+
+[dependencies]
+Iota = { git = "https://github.com/iotaledger/iota.git", subdir = "crates/iota-framework/packages/iota-framework", rev = "testnet" }
+
+[addresses]
+iota_dapp = "0x0"
