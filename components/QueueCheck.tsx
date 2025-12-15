@@ -24,7 +24,7 @@ const PACKAGE_ID = "0xaac0882c174dbcf746f3704f1d2426f8f353af394a61153c717fbc8845
 const LOCATION_OBJECTS = [
   "0x28b793b60f79600deece1d23e11f5ef3d387e30f082e5e904b645346a3a0dc17", // Central General Hospital
   "0x35756629b819af990f92c78f7d7ca16d9aa39b6edaedea818e2052ba51405425", // Immigration Office Downtown
-  "0x9a12dbbf7b38fc4ec0dfeeb732f6cada23d683ac23b8c0c1ae8ca85b37796c29", // Intl Airport Terminal 3
+  "0x9a12dbbf7b38fc4ec0dfeeb732f6cada23d683ac23b8c0c1ae8ca85b37796c29", // International Airport Terminal 3
   "0x92ef526265e87b5e4a91624135dab5bcdde30a3ba919fbfab982247888d07ef8", // City Hall Services
   "0x229b7c85d79c14f5ece1e2658989b714be6e82745275689c55c4ce1ea77d17ee", // National Bank Main Branch
   "0x3c1d380f530a83ce5b9572eda178427082bd8f8d87d182dc83ce94e5c7d83709", // Community Health Clinic
@@ -67,8 +67,6 @@ const QueueCheck = () => {
   const currentAccount = useCurrentAccount()
   const { mutate: disconnectWallet } = useDisconnectWallet()
   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction()
-
-  const [connectModalOpen, setConnectModalOpen] = useState(false)
   
   const [locations, setLocations] = useState<QueueLocation[]>([])
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
@@ -84,8 +82,6 @@ const QueueCheck = () => {
   const [showMyReports, setShowMyReports] = useState(false)
 
   const isConnected = !!currentAccount
-
-  // --- FEATURE: LOAD HISTORY FROM LOCAL STORAGE ---
   useEffect(() => {
     const savedReports = localStorage.getItem("queuecheck_history");
     if (savedReports) {
@@ -187,11 +183,9 @@ const QueueCheck = () => {
               txHash: result.digest
             };
             
-            // --- FEATURE: SAVE TO LOCAL STORAGE ---
             const updatedReports = [newReport, ...myReports];
             setMyReports(updatedReports);
             localStorage.setItem("queuecheck_history", JSON.stringify(updatedReports));
-            // -------------------------------------
 
             setIsPending(false);
             setShowSuccess(true);
@@ -227,6 +221,7 @@ const QueueCheck = () => {
     return COLORS.primary
   }
 
+  // --- LANDING PAGE ---
   if (!isConnected) {
     return (
       <div style={{
@@ -259,13 +254,15 @@ const QueueCheck = () => {
                 <p style={{ color: COLORS.textMain, fontWeight: "600", fontSize: "1.1rem", marginBottom: "1.5rem" }}>
                   Ready to check real-time queue?
                 </p>
-                <button
-                  onClick={() => setConnectModalOpen(true)}
-                  style={{ background: COLORS.primary, color: "white", padding: "1rem 2rem", borderRadius: "50px", border: "none", fontWeight: "700", fontSize: "1.1rem", cursor: "pointer", boxShadow: `0 4px 15px ${COLORS.primary}40`, width: "100%", transition: "transform 0.1s" }}
-                >
-                  Connect Wallet
-                </button>
-                <ConnectModal open={connectModalOpen} onOpenChange={setConnectModalOpen} />
+                <ConnectModal 
+                  trigger={
+                    <button
+                      style={{ background: COLORS.primary, color: "white", padding: "1rem 2rem", borderRadius: "50px", border: "none", fontWeight: "700", fontSize: "1.1rem", cursor: "pointer", boxShadow: `0 4px 15px ${COLORS.primary}40`, width: "100%", transition: "transform 0.1s" }}
+                    >
+                      Connect Wallet
+                    </button>
+                  }
+                />
             </div>
           </div>
         </div>
@@ -294,7 +291,6 @@ const QueueCheck = () => {
             {`Disconnect (${currentAccount?.address.slice(0, 4)}...${currentAccount?.address.slice(-4)})`}
           </button>
         </div>
-        <ConnectModal open={connectModalOpen} onOpenChange={setConnectModalOpen} />
       </div>
 
       <div style={{ flex: 1, padding: "2rem", position: "relative", zIndex: 1, overflowY: "auto" }}>
