@@ -1,12 +1,4 @@
 "use client"
-
-/**
- * ============================================================================
- * QUEUECHECK - DECENTRALIZED PUBLIC QUEUE TRANSPARENCY DAPP
- * Powered by IOTA MoveVM
- * ============================================================================
- */
-
 import { useState, useEffect } from "react"
 import { 
   ConnectModal, 
@@ -18,18 +10,16 @@ import {
 import { Transaction } from "@iota/iota-sdk/transactions"
 
 // --- SMART CONTRACT CONFIGURATION ---
-
-const PACKAGE_ID = "0xaac0882c174dbcf746f3704f1d2426f8f353af394a61153c717fbc8845a8ce0f"; 
-
+const PACKAGE_ID = "0xd2b29c28e058c33e6fe5212665a0d6f4fb74ae3c533127e289c36993aa157972"; 
+const REWARD_POOL_ID = "0x4cb6096d8c5ce564c959b2b7929ffe717fd926bca15b563df9fbcf5e78a071a8"; 
 const LOCATION_OBJECTS = [
-  "0x28b793b60f79600deece1d23e11f5ef3d387e30f082e5e904b645346a3a0dc17", // Central General Hospital
-  "0x35756629b819af990f92c78f7d7ca16d9aa39b6edaedea818e2052ba51405425", // Immigration Office Downtown
-  "0x9a12dbbf7b38fc4ec0dfeeb732f6cada23d683ac23b8c0c1ae8ca85b37796c29", // International Airport Terminal 3
-  "0x92ef526265e87b5e4a91624135dab5bcdde30a3ba919fbfab982247888d07ef8", // City Hall Services
-  "0x229b7c85d79c14f5ece1e2658989b714be6e82745275689c55c4ce1ea77d17ee", // National Bank Main Branch
-  "0x3c1d380f530a83ce5b9572eda178427082bd8f8d87d182dc83ce94e5c7d83709", // Community Health Clinic
+  "0x001ccca21647c21373f045617876f4bbea3428622be5e15fadbc1608eac23641", // Central General Hospital
+  "0x586ccd6a281cf605bb9e05ccdc7e844c30d0bceecbd47dcdb183882e1bee7c8f", // Immigration Office Downtown
+  "0x33d198cb253a18565d1bdae11c1195aa405dce42a57e8e3d3dda7bbeaecade94", // International Airport T3
+  "0xdb083203e63f71fc76c008f702412bc5025777cc2a39dd5a26ab53cd563eb192", // City Hall Services
+  "0xe665e8177537167037d70a9e42682b5bcdfb01ca343185edce79428df49f9ee9", // National Bank Main Branch
+  "0xd04993a5658dfaa886f298b0bb41684bb48942879b06a4133cbe54312243aaa6", // Community Health Clinic
 ];
-
 const MODULE_NAME = "queuecheck";
 const CLOCK_OBJECT_ID = "0x6"; 
 
@@ -70,9 +60,10 @@ const QueueCheck = () => {
   
   const [locations, setLocations] = useState<QueueLocation[]>([])
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
-  
   const [queueNumber, setQueueNumber] = useState("")
   const [estimatedWait, setEstimatedWait] = useState("")
+  
+  const [userBalance, setUserBalance] = useState<string>("0")
   
   const [isPending, setIsPending] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
@@ -82,6 +73,7 @@ const QueueCheck = () => {
   const [showMyReports, setShowMyReports] = useState(false)
 
   const isConnected = !!currentAccount
+
   useEffect(() => {
     const savedReports = localStorage.getItem("queuecheck_history");
     if (savedReports) {
@@ -92,6 +84,27 @@ const QueueCheck = () => {
       }
     }
   }, []);
+
+  const fetchBalance = async () => {
+    if (!currentAccount) return;
+    try {
+      const coinBalance = await client.getBalance({
+        owner: currentAccount.address,
+        coinType: `${PACKAGE_ID}::queuecheck::QUEUECHECK`
+      });
+      setUserBalance(coinBalance.totalBalance);
+    } catch (e) {
+      console.log("No balance found yet");
+    }
+  }
+
+  useEffect(() => {
+    if (isConnected) {
+      fetchBalance();
+      const interval = setInterval(fetchBalance, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [isConnected, currentAccount]);
 
   const fetchQueueData = async () => {
     if (LOCATION_OBJECTS.length === 0) return;
@@ -156,10 +169,12 @@ const QueueCheck = () => {
     try {
       const tx = new Transaction();
 
+      // Include RewardPool 
       tx.moveCall({
         target: `${PACKAGE_ID}::${MODULE_NAME}::update_queue`,
         arguments: [
-          tx.object(selectedLocation),            
+          tx.object(selectedLocation),
+          tx.object(REWARD_POOL_ID), 
           tx.pure.u64(parseInt(queueNumber)),     
           tx.pure.u64(parseInt(estimatedWait)),   
           tx.object(CLOCK_OBJECT_ID)              
@@ -189,6 +204,8 @@ const QueueCheck = () => {
 
             setIsPending(false);
             setShowSuccess(true);
+            fetchBalance(); 
+            
             setQueueNumber("");
             setEstimatedWait("");
             setSelectedLocation(null);
@@ -221,7 +238,6 @@ const QueueCheck = () => {
     return COLORS.primary
   }
 
-  // --- LANDING PAGE ---
   if (!isConnected) {
     return (
       <div style={{
@@ -270,7 +286,7 @@ const QueueCheck = () => {
     )
   }
 
-  // --- DASHBOARD ---
+  //  Dashboard 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#FAFAFA", position: "relative", fontFamily: "'Segoe UI', sans-serif" }}>
       
@@ -284,6 +300,11 @@ const QueueCheck = () => {
         </div>
 
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          {/* Coin balance */}
+          <div style={{background: "#FFF8E1", color: COLORS.primary, padding: "0.6rem 1rem", borderRadius: "12px", border: `1px solid ${COLORS.accent}`, fontWeight: "700", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "5px"}}>
+             💰 {userBalance} $QUEUE
+          </div>
+
           <button onClick={() => setShowMyReports(true)} style={{ background: COLORS.accent, color: "#333", padding: "0.6rem 1.2rem", borderRadius: "12px", border: "none", fontWeight: "600", cursor: "pointer", fontSize: "0.9rem" }}>
             My Reports ({myReports.length})
           </button>
@@ -302,12 +323,16 @@ const QueueCheck = () => {
             {isFetching && <span style={{fontSize: "0.8rem", color: "#888"}}>Updating data...</span>}
           </div>
           
+          {/* If the location is empty */}
           {locations.length === 0 && (
             <div style={{textAlign: "center", padding: "3rem", color: "#888", background: "white", borderRadius: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)"}}>
                {isFetching ? (
                  <p>⏳ Loading data from Blockchain...</p>
                ) : (
-                 <p>⚠️ No locations found. Check <code>LOCATION_OBJECTS</code> in code.</p>
+  
+                 <div>
+                    <p style={{fontSize: "1.2rem", fontWeight: "bold", color: COLORS.primary}}>⚠️ No Locations Found</p>
+                 </div>
                )}
             </div>
           )}
@@ -380,7 +405,7 @@ const QueueCheck = () => {
               <div style={{ display: "flex", gap: "1rem" }}>
                 <button onClick={() => { setSelectedLocation(null); setQueueNumber(""); setEstimatedWait(""); }} style={{ flex: 1, background: "#f0f0f0", color: "#666", padding: "1rem", borderRadius: "12px", border: "none", fontWeight: "600", cursor: "pointer" }}>Cancel</button>
                 <button onClick={submitQueueUpdate} disabled={isPending || !queueNumber || !estimatedWait} style={{ flex: 2, background: isPending || !queueNumber || !estimatedWait ? "#ddd" : COLORS.secondary, color: "white", padding: "1rem", borderRadius: "12px", border: "none", fontWeight: "700", cursor: isPending || !queueNumber || !estimatedWait ? "not-allowed" : "pointer", boxShadow: isPending ? "none" : `0 4px 15px ${COLORS.secondary}40` }}>
-                  {isPending ? "Signing..." : "✓ Submit to Chain"}
+                  {isPending ? "Signing..." : "Submit"}
                 </button>
               </div>
             </div>
@@ -390,7 +415,7 @@ const QueueCheck = () => {
             <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", background: COLORS.secondary, color: "white", padding: "2rem 4rem", borderRadius: "20px", boxShadow: "0 20px 50px rgba(0,0,0,0.2)", zIndex: 1000, textAlign: "center" }}>
               <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🎉</div>
               <div style={{fontSize: "1.2rem", fontWeight: "700"}}>Update Submitted!</div>
-              <div style={{fontSize: "0.8rem", marginTop: "0.5rem", opacity: 0.9, maxWidth: "300px", wordBreak: "break-all"}}>Tx: {lastTxDigest}</div>
+              <div style={{fontSize: "1rem", marginTop: "0.5rem", background: "rgba(255,255,255,0.2)", padding: "0.2rem 1rem", borderRadius: "10px"}}>+1 $QUEUE Earned</div>
             </div>
           )}
 
@@ -398,7 +423,7 @@ const QueueCheck = () => {
             <div onClick={() => setShowMyReports(false)} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0, 0, 0, 0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "2rem" }}>
               <div onClick={(e) => e.stopPropagation()} style={{ background: "white", borderRadius: "24px", maxWidth: "600px", width: "100%", maxHeight: "80vh", overflow: "auto", padding: "2rem", position: "relative", boxShadow: "0 20px 50px rgba(0,0,0,0.2)" }}>
                 <button onClick={() => setShowMyReports(false)} style={{ position: "absolute", top: "1.5rem", right: "1.5rem", background: "#f0f0f0", color: "#333", border: "none", borderRadius: "50%", width: "36px", height: "36px", fontSize: "1.2rem", fontWeight: "bold", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: "800", color: COLORS.primary, marginBottom: "2rem", paddingBottom: "1rem", borderBottom: "2px solid #f0f0f0" }}>📊 My Session Reports</h2>
+                <h2 style={{ fontSize: "1.5rem", fontWeight: "800", color: COLORS.primary, marginBottom: "2rem", paddingBottom: "1rem", borderBottom: "2px solid #f0f0f0" }}> My Session Reports</h2>
                 <p style={{fontSize: "0.9rem", color: "#666", marginBottom: "1rem"}}>Your report history for this session.</p>
                 
                 {myReports.length === 0 ? (
@@ -412,7 +437,7 @@ const QueueCheck = () => {
                       <div key={report.id} style={{ background: "#FAFAFA", padding: "1.5rem", borderRadius: "16px", border: "1px solid #E0E0E0" }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                           <h4 style={{ margin: 0, color: COLORS.textMain, fontSize: "1.1rem" }}>{report.locationName}</h4>
-                          <span style={{ background: COLORS.secondary, color: "white", padding: "0.25rem 0.75rem", borderRadius: "20px", fontSize: "0.75rem", fontWeight: "600" }}>Success</span>
+                          <span style={{ background: COLORS.secondary, color: "white", padding: "0.25rem 0.75rem", borderRadius: "20px", fontSize: "0.75rem", fontWeight: "600" }}>+1 QUEUE</span>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "0.5rem" }}>
                           <div style={{ background: "white", padding: "0.5rem", borderRadius: "8px", textAlign: "center", border: "1px solid #eee" }}>

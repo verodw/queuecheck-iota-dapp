@@ -1,9 +1,9 @@
 [package]
-name = "iota_dapp"
-edition = "2024.beta"
+name = "queuecheck"
+edition = "2024.beta" # Kita pertahankan edisi terbaru ini
 
 [dependencies]
 Iota = { git = "https://github.com/iotaledger/iota.git", subdir = "crates/iota-framework/packages/iota-framework", rev = "testnet" }
 
 [addresses]
-iota_dapp = "0x0"
+queuecheck = "0x0"
