@@ -13,17 +13,18 @@
 ## Overview
 
 **QueueCheck** is a decentralized application (dApp) built on the **IOTA Testnet**. It solves the problem of unpredictable waiting times at public services (Hospitals, Airports, Banks, etc.) by incentivizing the community to report real-time data. 
+</br>
 To ensure data accuracy and active participation, QueueCheck introduces a **"Report-to-Earn" mechanism**. Users are automatically rewarded with **$QUEUE tokens** every time they submit a valid queue report to the blockchain.
 
 ---
 
 ## Features
 
-* ** Report-to-Earn System:** Users receive **1 $QUEUE Token** instantly for every successful update transaction.
-* ** Multi-Location Tracking:** Supports tracking for 6 distinct public sectors (Hospital, Immigration, Airport, City Hall, Bank, Clinic).
-* ** Real-Time On-Chain Data:** Data is stored directly on **IOTA Shared Objects**, ensuring transparency, immutability, and instant global sync.
-* ** Wallet Integration:** Seamless connection with IOTA Wallet to sign transactions and view token balances.
-* ** Powered by MoveVM:** Utilizes safe and efficient smart contract logic for atomic transactions.
+* **Report-to-Earn System:** Users receive **1 $QUEUE Token** instantly for every successful update transaction.
+* **Multi-Location Tracking:** Supports tracking for 6 distinct public sectors (Hospital, Immigration, Airport, City Hall, Bank, Clinic).
+* **Real-Time On-Chain Data:** Data is stored directly on **IOTA Shared Objects**, ensuring transparency, immutability, and instant global sync.
+* **Wallet Integration:** Seamless connection with IOTA Wallet to sign transactions and view token balances.
+* **Powered by MoveVM:** Utilizes safe and efficient smart contract logic for atomic transactions.
 
 ---
 
