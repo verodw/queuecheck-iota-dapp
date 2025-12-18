@@ -1,4 +1,4 @@
-# 🚦 QueueCheck V2
+# 🚦 QueueCheck 
 
 <p align="center">
   <img src="public/image/logo-qc.png" width="180" alt="QueueCheck Logo" />
