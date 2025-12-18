@@ -1,53 +1,62 @@
-# 🚦 QueueCheck 
+# 🚦 QueueCheck V2
 
 <p align="center">
   <img src="public/image/logo-qc.png" width="180" alt="QueueCheck Logo" />
 </p>
 
 <p align="center">
-  <b>Real-Time Public Service Queue Tracking on IOTA MoveVM</b>
+  <b>Decentralized "Report-to-Earn" Queue Tracking on IOTA MoveVM</b>
 </p>
 
 ---
 
-## Overview
+## 📖 Overview
 
-**QueueCheck** is a decentralized application (dApp) built on the **IOTA Testnet**. It enables users to view and report real-time queue status for essential public services (Hospitals, Airports, Immigration, Banks, etc.) in a transparent, immutable, and decentralized manner.
-
-Unlike traditional apps where data is stored on a central server, QueueCheck utilizes **IOTA Shared Objects**, ensuring that the queue data is publicly accessible and cannot be manipulated by a single entity.
+**QueueCheck** is a decentralized application (dApp) built on the **IOTA Testnet**. It solves the problem of unpredictable waiting times at public services (Hospitals, Airports, Banks, etc.) by incentivizing the community to report real-time data. 
+To ensure data accuracy and active participation, QueueCheck introduces a **"Report-to-Earn" mechanism**. Users are automatically rewarded with **$QUEUE tokens** every time they submit a valid queue report to the blockchain.
 
 ---
 
 ## Features
 
-* **Real-Time On-Chain Data:** Queue statuses are fetched directly from the IOTA Blockchain, not a database.
-* **Shared Object Architecture:** Utilizes Move's *Shared Object* capability, allowing multiple concurrent users to read and update the same location data instantly.
-* **Multi-Location Support:** Supports tracking for 6 distinct public sectors (Hospital, Immigration, Airport, City Hall, Bank, Clinic).
-* **Local Persistence:** User submission history is securely saved in local storage for session tracking.
+* **💰 Report-to-Earn System:** Users receive **1 $QUEUE Token** instantly for every successful update transaction.
+* **🏥 Multi-Location Tracking:** Supports tracking for 6 distinct public sectors (Hospital, Immigration, Airport, City Hall, Bank, Clinic).
+* **🔗 Real-Time On-Chain Data:** Data is stored directly on **IOTA Shared Objects**, ensuring transparency, immutability, and instant global sync.
+* **💼 Wallet Integration:** Seamless connection with IOTA Wallet to sign transactions and view token balances.
+* **⚡ Powered by MoveVM:** Utilizes safe and efficient smart contract logic for atomic transactions.
 
 ---
 
 ## Tech Stack
 
-### Frontend
-* **Framework:** [Next.js 14](https://nextjs.org/) (React)
-* **Language:** TypeScript
-* **Blockchain SDK:** `@iota/dapp-kit`, `@iota/iota-sdk`
-* **Styling:** Custom CSS / Tailwind
-
-### Smart Contract (Move)
-* **Network:** IOTA Rebased Testnet
-* **Concepts:** Shared Objects, Admin Capabilities (`AdminCap`), `iota::clock` for timestamping.
+* **Frontend:** [Next.js 14](https://nextjs.org/), TypeScript, Tailwind CSS
+* **Blockchain:** IOTA MoveVM (Smart Contract)
+* **SDK:** `@iota/dapp-kit`, `@iota/iota-sdk`
+* **Deployment:** Vercel
 
 ---
 
-## How It Works
+## How It Works 
 
-1.  **Object Creation:** An Admin creates a `Location` object (e.g., "Central General Hospital") on the IOTA network using a secured `AdminCap`. This object is shared publicly.
-2.  **User Reporting:** Users physically at the location connect their IOTA Wallet.
-3.  **Transaction Execution:** Users submit a `moveCall` transaction to the `update_queue` function.
-4.  **Verification & Update:** The blockchain verifies the transaction and updates the `current_queue` and `estimated_wait` fields of the Shared Object.
-5.  **Live Sync:** The frontend dApp automatically polls the blockchain to reflect the latest status to all connected users globally.
+1.  **Setup:** The Admin creates `Location` objects and funds a `RewardPool` with **$QUEUE** tokens.
+2.  **Report:** A user arrives at a location (e.g., Hospital), connects their wallet, and inputs the current queue number.
+3.  **Execute:** The user submits a transaction via the Frontend using their IOTA Wallet.
+4.  **Smart Contract Action :**
+    * The contract updates the `Location` data on-chain.
+    * The contract checks the `RewardPool` balance.
+    * The contract **transfers 1 $QUEUE Token** from the pool to the user's wallet.
+5.  **Result:** The UI updates instantly for everyone, and the user sees their coin balance increase.
+
+---
+
+## Smart Contract Structure
+
+The core logic resides in `sources/queuecheck.move`. It manages:
+
+* **`struct Location`**: A shared object holding the queue number, wait time, and timestamp.
+* **`struct RewardPool`**: A "Vault" object that securely holds the supply of $QUEUE tokens to pay users.
+* **`struct QUEUECHECK`**: The One-Time Witness (OTW) used to create the distinct currency.
+* **`fun update_queue`**: The main entry function that updates data AND distributes rewards in a single step.
 
 ---
 
@@ -57,8 +66,7 @@ If you want to run this project locally:
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/verodw/queuecheck-iota-dapp.git](https://github.com/verodw/queuecheck-iota-dapp.git)
-    cd queuecheck-iota-dapp
+    git clone https://github.com/verodw/queuecheck-iota-dapp.git
     ```
 
 2.  **Install Dependencies**
@@ -66,10 +74,7 @@ If you want to run this project locally:
     npm install
     ```
 
-3.  **Configure Environment**
-    Ensure you have the correct `PACKAGE_ID` in `app/components/QueueCheck.tsx` matching your deployed contract on IOTA Testnet.
-
-4.  **Run the App**
+3.  **Run the App**
     ```bash
     npm run dev
     ```
@@ -77,17 +82,17 @@ If you want to run this project locally:
 
 ---
 
-## Smart Contract Structure
+## Future Roadmap
 
-The core logic resides in `sources/queuecheck.move`. It defines:
+Potential improvements for a production release:
 
-* `struct Location`: A shared object holding the queue number, wait time, and timestamp.
-* `struct AdminCap`: A capability allowing only the admin to create new locations to prevent spam.
-* `public entry fun update_queue`: The main logic allowing public participation in updating the data.
+* ✅ **Anti-Spam Cooldown:** Implementing a time-lock (e.g., 5 minutes) per user to prevent draining the reward pool.
+* ✅ **Token Utility:** Enabling governance voting using $QUEUE tokens to let users decide on new locations.
+* ✅ **Treasury Management:** Adding admin functions to refill the Reward Pool when funds run low.
 
 ---
 
 ## Acknowledgement
 
-This project was developed for the **Build on IOTA Workshop – Jakarta**.
-It serves as a demonstration of **IOTA Move fundamentals**: Object Ownership, Shared Objects, and dApp integration.
+This project was developed by **Veronica Dwiyanti** for the **Build on IOTA Workshop – Jakarta**.
+It serves as a demonstration of advanced IOTA concepts: *Shared Objects, Coin Standards, and Programmable Transaction Blocks (PTB).*
